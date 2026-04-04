@@ -3528,54 +3528,59 @@
                         style="width: 316px; left: 655px; top: 169px; height: 84px; transition-duration: 5s;"
                         data-observer-ready="true">
                         <div class="tn-atom tn-atom__html">
-  <div id="custom-timer" style="min-width: 250px; height: 58px; text-align: center; display: table; margin: 0 auto;">
-    <span class="timer-element" style="display: table-cell; width: 58px;">
-      <span id="days" style="display: inline-block; font-size: 14px; color: #80090d; font-family: 'Poiret One';">0</span>
-      <span style="display: block; font-size: 12px;">дней</span>
-    </span>
-    <span style="display: table-cell; padding: 0 3px;">:</span>
-    <span class="timer-element" style="display: table-cell; width: 58px;">
-      <span id="hours" style="display: inline-block; font-size: 14px; color: #80090d;">0</span>
-      <span style="display: block; font-size: 12px;">часов</span>
-    </span>
-    <span style="display: table-cell; padding: 0 3px;">:</span>
-    <span class="timer-element" style="display: table-cell; width: 58px;">
-      <span id="minutes" style="display: inline-block; font-size: 14px; color: #80090d;">0</span>
-      <span style="display: block; font-size: 12px;">минут</span>
-    </span>
-    <span style="display: table-cell; padding: 0 3px;">:</span>
-    <span class="timer-element" style="display: table-cell; width: 58px;">
-      <span id="seconds" style="display: inline-block; font-size: 14px; color: #80090d;">0</span>
-      <span style="display: block; font-size: 12px;">секунд</span>
-    </span>
-  </div>
-  <script>
-    (function() {
-      var targetDate = new Date(2026, 7, 24, 0, 0, 0);
-      function updateTimer() {
-        var now = new Date();
-        var diff = targetDate - now;
-        if (diff <= 0) {
-          document.getElementById('days').innerText = '0';
-          document.getElementById('hours').innerText = '0';
-          document.getElementById('minutes').innerText = '0';
-          document.getElementById('seconds').innerText = '0';
-          return;
-        }
-        var days = Math.floor(diff / (1000 * 60 * 60 * 24));
-        var hours = Math.floor((diff % (86400000)) / (1000 * 60 * 60));
-        var minutes = Math.floor((diff % (3600000)) / (1000 * 60));
-        var seconds = Math.floor((diff % (60000)) / 1000);
-        document.getElementById('days').innerText = days;
-        document.getElementById('hours').innerText = hours;
-        document.getElementById('minutes').innerText = minutes;
-        document.getElementById('seconds').innerText = seconds;
-      }
-      updateTimer();
-      setInterval(updateTimer, 1000);
-    })();
-  </script>
-</div>
+                            <div id="custom-timer"
+                                style="min-width: 250px; height: 58px; text-align: center; display: table; margin: 0 auto;">
+                                <span class="timer-element" style="display: table-cell; width: 58px;">
+                                    <span id="days"
+                                        style="display: inline-block; font-size: 14px; color: #80090d; font-family: 'Poiret One';">0</span>
+                                    <span style="display: block; font-size: 12px;">дней</span>
+                                </span>
+                                <span style="display: table-cell; padding: 0 3px;">:</span>
+                                <span class="timer-element" style="display: table-cell; width: 58px;">
+                                    <span id="hours"
+                                        style="display: inline-block; font-size: 14px; color: #80090d;">0</span>
+                                    <span style="display: block; font-size: 12px;">часов</span>
+                                </span>
+                                <span style="display: table-cell; padding: 0 3px;">:</span>
+                                <span class="timer-element" style="display: table-cell; width: 58px;">
+                                    <span id="minutes"
+                                        style="display: inline-block; font-size: 14px; color: #80090d;">0</span>
+                                    <span style="display: block; font-size: 12px;">минут</span>
+                                </span>
+                                <span style="display: table-cell; padding: 0 3px;">:</span>
+                                <span class="timer-element" style="display: table-cell; width: 58px;">
+                                    <span id="seconds"
+                                        style="display: inline-block; font-size: 14px; color: #80090d;">0</span>
+                                    <span style="display: block; font-size: 12px;">секунд</span>
+                                </span>
+                            </div>
+                            <script>
+                                (function () {
+                                    var targetDate = new Date(2026, 7, 24, 0, 0, 0);
+                                    function updateTimer() {
+                                        var now = new Date();
+                                        var diff = targetDate - now;
+                                        if (diff <= 0) {
+                                            document.getElementById('days').innerText = '0';
+                                            document.getElementById('hours').innerText = '0';
+                                            document.getElementById('minutes').innerText = '0';
+                                            document.getElementById('seconds').innerText = '0';
+                                            return;
+                                        }
+                                        var days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                                        var hours = Math.floor((diff % (86400000)) / (1000 * 60 * 60));
+                                        var minutes = Math.floor((diff % (3600000)) / (1000 * 60));
+                                        var seconds = Math.floor((diff % (60000)) / 1000);
+                                        document.getElementById('days').innerText = days;
+                                        document.getElementById('hours').innerText = hours;
+                                        document.getElementById('minutes').innerText = minutes;
+                                        document.getElementById('seconds').innerText = seconds;
+                                    }
+                                    updateTimer();
+                                    setInterval(updateTimer, 1000);
+                                })();
+                            </script>
+                        </div>
                     </div>
                     <div class="t396__elem tn-elem tn-elem__14625335211708689597661" data-elem-id="1708689597661"
                         data-elem-type="image" data-field-top-value="68" data-field-left-value="1000"
