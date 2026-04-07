@@ -5408,12 +5408,6 @@
     data-success-callback="t396_onSuccess" data-success-popup="y" data-error-popup="y">
     <input type="hidden" tabindex="-1" value="1708692607720" name="tildaspec-elemid">
 
-    <!-- <div class="js-successbox t-form__successbox t-text t-text_sm" style="display: none;">
-        <div style="color:#004728;" data-customstyle="yes">
-            Спасибо! Ваши данные отправлены!
-        </div>
-    </div> -->
-
     <div class="t-form__inputsbox">
         <div class="t-input-group t-input-group_in" data-input-lid="1708692607721"
             data-field-type="in" data-field-name="Ваше Имя и Фамилия "
@@ -5712,122 +5706,185 @@
 </form>
 
 <script>
-    (function() {
-        const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyfhbefkc2f-1MnwWPgfRjuH9lz68pmLXcdQ8J0aulWRuRkcWI4I2LGmfF_XTmBGbQw/exec';
+(function() {
+    const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyfhbefkc2f-1MnwWPgfRjuH9lz68pmLXcdQ8J0aulWRuRkcWI4I2LGmfF_XTmBGbQw/exec';
 
-        function getCheckboxValues(form, name) {
-            // Ищем только чекбоксы (исключаем hidden)
-            const inputs = form.querySelectorAll(`input[type="checkbox"][name="${name}"]:checked`);
-            console.log(`🔍 Найдено чекбоксов для "${name}": ${inputs.length}`, inputs);
-            const values = [];
-            inputs.forEach(input => values.push(input.value.trim()));
-            const result = values.join(', ');
-            console.log(`📦 Значения для "${name}": "${result}"`);
-            return result;
+    // ---------- Вспомогательные функции ----------
+    function getCheckboxValues(form, name) {
+        const inputs = form.querySelectorAll(`input[type="checkbox"][name="${name}"]:checked`);
+        const values = [];
+        inputs.forEach(input => values.push(input.value.trim()));
+        return values.join(', ');
+    }
+
+    function getRadioValue(form, name) {
+        const input = form.querySelector(`input[type="radio"][name="${name}"]:checked`);
+        return input ? input.value : '';
+    }
+
+    function getInputValue(form, name) {
+        const input = form.querySelector(`[name="${name}"]`);
+        if (input && input.type !== 'hidden') {
+            return input.value;
+        }
+        return '';
+    }
+
+    // ---------- Валидация первых двух полей ----------
+    function validateForm(form) {
+        let isValid = true;
+
+        // 1. Имя и фамилия
+        const nameInput = form.querySelector('[name="Ваше Имя и Фамилия "]');
+        const nameGroup = nameInput.closest('.t-input-group');
+        const nameError = nameGroup.querySelector('.t-input-error');
+        const nameValue = nameInput.value.trim();
+
+        if (nameValue === '') {
+            nameError.textContent = 'Пожалуйста, введите ваше имя и фамилию';
+            nameError.style.display = 'block';
+            nameError.style.fontFamily = 'Georgia, serif';
+            nameInput.style.border = '1px solid red';
+            isValid = false;
+        } else {
+            nameError.textContent = '';
+            nameError.style.display = 'none';
+            nameInput.style.border = '';
         }
 
-        function getRadioValue(form, name) {
-            const input = form.querySelector(`input[type="radio"][name="${name}"]:checked`);
-            console.log(`🔍 Radio "${name}":`, input ? input.value : '(не выбрано)');
-            return input ? input.value : '';
-        }
-
-        function getInputValue(form, name) {
-            const input = form.querySelector(`[name="${name}"]`);
-            // Исключаем скрытые поля
-            if (input && input.type !== 'hidden') {
-                console.log(`🔍 Поле "${name}":`, input.value);
-                return input.value;
+        // 2. Радио (планируете ли приехать)
+        const radioGroup = form.querySelectorAll('input[type="radio"][name="Планируете ли Вы приехать на роспись и/или свадьбу?"]');
+        const radioChecked = Array.from(radioGroup).some(radio => radio.checked);
+        const radioContainer = radioGroup[0]?.closest('.t-input-group');
+        if (radioContainer) {
+            const radioError = radioContainer.querySelector('.t-input-error');
+            if (!radioChecked) {
+                radioError.textContent = 'Пожалуйста, выберите один из вариантов';
+                radioError.style.display = 'block';
+                radioError.style.fontFamily = 'Georgia, serif';
+                isValid = false;
+            } else {
+                radioError.textContent = '';
+                radioError.style.display = 'none';
             }
-            return '';
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            const form = document.getElementById('form1462533551');
-            if (!form) {
-                console.error('❌ Форма не найдена');
+        return isValid;
+    }
+
+    // ---------- Основной код ----------
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('form1462533551');
+        if (!form) {
+            console.error('❌ Форма не найдена');
+            return;
+        }
+
+        // Отключаем стандартную отправку Tilda
+        form.removeAttribute('action');
+        form.removeAttribute('data-formactiontype');
+
+        // Перемещаем successBox вниз страницы и стилизуем
+        let successBox = form.querySelector('.js-successbox');
+        if (successBox && successBox.parentNode !== document.body) {
+            document.body.appendChild(successBox);
+            successBox.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background-color: #004728;
+                color: white;
+                padding: 15px 25px;
+                border-radius: 8px;
+                font-family: Georgia, serif;
+                font-size: 16px;
+                z-index: 10000;
+                display: none;
+                text-align: center;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                max-width: 90%;
+                white-space: nowrap;
+            `;
+            const innerDiv = successBox.querySelector('div');
+            if (innerDiv) innerDiv.style.color = 'white';
+        }
+
+        // Обработчик отправки
+        form.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            // Валидация
+            if (!validateForm(form)) {
+                const firstError = form.querySelector('.t-input-error:not(:empty)');
+                if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 return;
             }
 
-            form.removeAttribute('action');
-            form.removeAttribute('data-formactiontype');
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalText = submitBtn ? submitBtn.textContent : 'Отправить!';
+            if (submitBtn) {
+                submitBtn.textContent = 'Отправка...';
+                submitBtn.disabled = true;
+            }
 
-            const successBox = form.querySelector('.js-successbox');
+            try {
+                const params = new URLSearchParams();
 
-            form.addEventListener('submit', async function(event) {
-                event.preventDefault();
-                event.stopPropagation();
+                const nameValue = getInputValue(form, 'Ваше Имя и Фамилия ');
+                params.append('name', nameValue);
 
-                const submitBtn = form.querySelector('button[type="submit"]');
-                const originalText = submitBtn ? submitBtn.textContent : 'Отправить!';
+                const attendanceValue = getRadioValue(form, 'Планируете ли Вы приехать на роспись и/или свадьбу?');
+                params.append('attendance', attendanceValue);
+
+                const guestsValue = getInputValue(form, 'В каком составе вы планируете приехать? ');
+                params.append('guests', guestsValue);
+
+                const drinksValue = getCheckboxValues(form, 'Какие напитки вы предпочитаете? ');
+                params.append('drinks', drinksValue);
+
+                const foodValue = getCheckboxValues(form, 'Есть ли у вас ограничения в еде? ');
+                params.append('food', foodValue);
+
+                const allergyValue = getInputValue(form, 'Есть ли у вас аллергия? Если есть, напишите какая.');
+                params.append('allergy', allergyValue);
+
+                // Если в форме есть поле "Дополнительный комментарий" – добавьте его сюда
+                const commentValue = getInputValue(form, 'Дополнительный комментарий. По желанию.');
+                params.append('comment', commentValue);
+
+                const response = await fetch(GOOGLE_SHEETS_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: params.toString()
+                });
+
+                const result = await response.json();
+
+                if (result.result === 'success') {
+                    if (successBox) successBox.style.display = 'block';
+                    form.reset();
+                    setTimeout(() => {
+                        if (successBox) successBox.style.display = 'none';
+                    }, 5000);
+                } else {
+                    throw new Error(result.error || 'Ошибка при отправке');
+                }
+            } catch (error) {
+                console.error('❌ Ошибка:', error);
+                alert('Ошибка отправки: ' + error.message);
+            } finally {
                 if (submitBtn) {
-                    submitBtn.textContent = 'Отправка...';
-                    submitBtn.disabled = true;
+                    submitBtn.textContent = originalText;
+                    submitBtn.disabled = false;
                 }
-
-                try {
-                    // Собираем параметры
-                    const params = new URLSearchParams();
-                    
-                    const nameValue = getInputValue(form, 'Ваше Имя и Фамилия ');
-                    params.append('name', nameValue);
-                    
-                    const attendanceValue = getRadioValue(form, 'Планируете ли Вы приехать на роспись и/или свадьбу?');
-                    params.append('attendance', attendanceValue);
-                    
-                    const guestsValue = getInputValue(form, 'В каком составе вы планируете приехать? ');
-                    params.append('guests', guestsValue);
-                    
-                    const drinksValue = getCheckboxValues(form, 'Какие напитки вы предпочитаете? ');
-                    params.append('drinks', drinksValue);
-                    
-                    const foodValue = getCheckboxValues(form, 'Есть ли у вас ограничения в еде? ');
-                    params.append('food', foodValue);
-                    
-                    const allergyValue = getInputValue(form, 'Есть ли у вас аллергия? Если есть, напишите какая.');
-                    params.append('allergy', allergyValue);
-                    
-                    const commentValue = getInputValue(form, 'Дополнительный комментарий. По желанию.');
-                    params.append('comment', commentValue);
-
-                    console.log('📤 Отправляемые параметры:');
-                    for (let [key, val] of params) {
-                        console.log(`   ${key} = "${val}"`);
-                    }
-
-                    const response = await fetch(GOOGLE_SHEETS_URL, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                        },
-                        body: params.toString()
-                    });
-
-                    const result = await response.json();
-                    console.log('✅ Ответ сервера:', result);
-
-                    if (result.result === 'success') {
-                        if (successBox) successBox.style.display = 'block';
-                        form.reset();
-                        setTimeout(() => {
-                            if (successBox) successBox.style.display = 'none';
-                        }, 5000);
-                    } else {
-                        throw new Error(result.error || 'Ошибка при отправке');
-                    }
-
-                } catch (error) {
-                    console.error('❌ Ошибка:', error);
-                    alert('Ошибка отправки: ' + error.message);
-                } finally {
-                    if (submitBtn) {
-                        submitBtn.textContent = originalText;
-                        submitBtn.disabled = false;
-                    }
-                }
-            });
+            }
         });
-    })();
+    });
+})();
 </script>
                             <style id="t-zero-form-btn-styles-1708692607720-1462533551">
                                 #rec1462533551 [data-elem-id="1708692607720"] .t-submit {
